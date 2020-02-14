@@ -56,12 +56,36 @@ class TwitterAPICaller: BDBOAuth1SessionManager {
         })
     }
 
-    func postRequest(url: String, parameters: [Any], success: @escaping () -> (), failure: @escaping (Error) -> ()){
+    func postRequest(url: String, parameters: [String: Any], success: @escaping () -> (), failure: @escaping (Error) -> ()){
         TwitterAPICaller.client?.post(url, parameters: parameters, progress: nil, success: { (task: URLSessionDataTask, response: Any?) in
             success()
         }, failure: { (task: URLSessionDataTask?, error: Error) in
             failure(error)
         })
+    }
+    
+    func postTweet(tweetString:String, success: @escaping () -> (), failure: @escaping (Error) -> ()) {
+        let url = "https://api.twitter.com/1.1/statuses/update.json"
+        
+        postRequest(url: url, parameters: ["status": tweetString], success: success, failure: failure)
+    }
+    
+    func favoriteTweet(tweetId:Int, success: @escaping () -> (), failure: @escaping (Error) -> ()) {
+        let url = "https://api.twitter.com/1.1/favorites/create.json"
+        
+        postRequest(url: url, parameters: ["id": tweetId], success: success, failure: failure)
+    }
+    
+    func unfavoriteTweet(tweetId:Int, success: @escaping () -> (), failure: @escaping (Error) -> ()) {
+        let url = "https://api.twitter.com/1.1/favorites/destroy.json"
+        
+        postRequest(url: url, parameters: ["id": tweetId], success: success, failure: failure)
+    }
+    
+    func retweetTweet(tweetId:Int, success: @escaping () -> (), failure: @escaping (Error) -> ()) {
+        let url = "https://api.twitter.com/1.1/statuses/retweet/\(tweetId).json"
+        
+        postRequest(url: url, parameters: ["id": tweetId], success: success, failure: failure)
     }
     
 }

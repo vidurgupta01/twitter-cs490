@@ -24,13 +24,23 @@ class HomeTableViewController: UITableViewController {
         
         myRefreshControl.addTarget(self, action: #selector(loadTweet), for: .valueChanged)
         tableView.refreshControl = myRefreshControl
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(loadTweet), name: NSNotification.Name(rawValue: "RELOAD_TWEETS"), object: nil)
+        
+        self.tableView.rowHeight = UITableView.automaticDimension
+        self.tableView.estimatedRowHeight = 200
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.loadMoreTweets()
     }
     
     @objc func loadTweet() {
         let myURL = "https://api.twitter.com/1.1/statuses/home_timeline.json"
-        let myParms = ["count": numberOfTweet]
+        let myParams = ["count": numberOfTweet]
         
-        TwitterAPICaller.client?.getDictionariesRequest(url: myURL, parameters: myParms, success: { (tweets: [NSDictionary]) in
+        TwitterAPICaller.client?.getDictionariesRequest(url: myURL, parameters: myParams as [String : Any], success: { (tweets: [NSDictionary]) in
             
             self.tweetArray.removeAll()
             for tweet in tweets {
@@ -72,13 +82,18 @@ class HomeTableViewController: UITableViewController {
         
         cell.lblName.text = user["name"] as? String
         cell.lblContent.text = tweetArray[indexPath.row]["text"] as? String
-
+        
         let imageURL = URL(string: (user["profile_image_url_https"] as? String)!)
         let data = try? Data(contentsOf: imageURL!)
         
         if let imageData = data {
             cell.imgProfilePic.image = UIImage(data: imageData);
         }
+        
+        cell.setFav(tweetArray[indexPath.row]["favorited"] as! Bool)
+        cell.tweetId = tweetArray[indexPath.row]["id"] as! Int
+        
+        cell.setRetweeted(tweetArray[indexPath.row]["retweeted"] as! Bool)
         
         return cell
     }
@@ -90,5 +105,5 @@ class HomeTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return tweetArray.count
     }
-
+    
 }
