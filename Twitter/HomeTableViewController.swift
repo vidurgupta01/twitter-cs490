@@ -88,6 +88,10 @@ class HomeTableViewController: UITableViewController {
         
         if let imageData = data {
             cell.imgProfilePic.image = UIImage(data: imageData);
+            cell.imgProfilePic.layer.cornerRadius = (cell.imgProfilePic.frame.size.width) / 2
+            cell.imgProfilePic.layer.masksToBounds = true;
+            cell.imgProfilePic.layer.borderWidth = 0;
+            cell.imgProfilePic.clipsToBounds = true;
         }
         
         cell.setFav(tweetArray[indexPath.row]["favorited"] as! Bool)
